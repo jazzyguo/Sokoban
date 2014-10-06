@@ -11,6 +11,13 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import application.Main.SokobanPropertyType;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import properties_manager.PropertiesManager;
 import xml_utilities.InvalidXMLFileFormatException;
 import sokoban.file.SokobanFileLoader;
@@ -54,7 +61,7 @@ public class SokobanEventHandler {
      * @param window The window that the user has requested to close.
      */
     public void respondToExitRequest(Stage primaryStage) {
-         // ENGLIS IS THE DEFAULT
+        // ENGLIS IS THE DEFAULT
         String options[] = new String[]{"Yes", "No"};
         PropertiesManager props = PropertiesManager.getPropertiesManager();
         options[0] = props.getProperty(SokobanPropertyType.DEFAULT_YES_TEXT);
@@ -112,9 +119,12 @@ public class SokobanEventHandler {
 
     public void respondToSelectLevelRequest(String level) {
         SokobanGameStateManager gsm = ui.getGSM();
+        System.out.println(level);
         ui.initSokobanUI();
         // WE'LL START THE GAME TOO
         gsm.startNewGame();
+        //Open Level      
+        
     }
 
 }

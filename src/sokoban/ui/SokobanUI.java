@@ -16,16 +16,30 @@ import sokoban.file.SokobanFileLoader;
 import sokoban.game.SokobanGameData;
 import sokoban.game.SokobanGameStateManager;
 import application.Main.SokobanPropertyType;
+import static com.sun.org.apache.xalan.internal.lib.ExsltDatetime.time;
+import static com.sun.org.apache.xalan.internal.lib.ExsltDatetime.time;
 import java.awt.Dimension;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import static java.lang.System.gc;
 import java.util.Timer;
+import java.util.TimerTask;
 import javafx.animation.AnimationTimer;
+import javafx.animation.Timeline;
+import javafx.application.Application;
+import javafx.application.Platform;
 import properties_manager.PropertiesManager;
 import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
@@ -45,6 +59,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javax.swing.JScrollPane;
 
@@ -88,7 +103,6 @@ public class SokobanUI extends Pane {
     private HBox letterButtonsPane;
     private HashMap<Character, Button> letterButtons;
     private BorderPane gamePanel = new BorderPane();
-    private GraphicsContext gc;
 
     //StatsPane
     private ScrollPane statsScrollPane;
@@ -110,6 +124,16 @@ public class SokobanUI extends Pane {
     // mainPane weight && height
     private int paneWidth;
     private int paneHeigth;
+
+    // GRID Renderer
+    private GridRenderer gridRenderer;
+    private GraphicsContext gc;
+
+    // AND HERE IS THE GRID WE'RE MAKING
+    private int gridColumns;
+    private int gridRows;
+    private int grid[][];
+    private FileChooser fileChooser;
 
     // THIS CLASS WILL HANDLE ALL ACTION EVENTS FOR THIS PROGRAM
     private SokobanEventHandler eventHandler;
@@ -149,6 +173,22 @@ public class SokobanUI extends Pane {
 
     public JEditorPane getHelpPane() {
         return helpPane;
+    }
+
+    public int getGridColumns() {
+        return gridColumns;
+    }
+
+    public int getGridRows() {
+        return gridRows;
+    }
+
+    public int[][] getGrid() {
+        return grid;
+    }
+
+    public GridRenderer getGridRenderer() {
+        return gridRenderer;
     }
 
     public void initMainPane() {
@@ -217,7 +257,49 @@ public class SokobanUI extends Pane {
                 public void handle(ActionEvent event) {
                     // TODO
                     eventHandler.respondToSelectLevelRequest(level);
-                    System.out.println(levelButton.getText());
+                    //Open Level
+                    File fileToOpen = null;
+                    try {
+                        if (fileToOpen != null) {
+                            // LET'S USE A FAST LOADING TECHNIQUE. WE'LL LOAD ALL OF THE
+                            // BYTES AT ONCE INTO A BYTE ARRAY, AND THEN PICK THAT APART.
+                            // THIS IS FAST BECAUSE IT ONLY HAS TO DO FILE READING ONCE
+                            byte[] bytes = new byte[Long.valueOf(fileToOpen.length()).intValue()];
+                            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+                            FileInputStream fis = new FileInputStream(fileToOpen);
+                            BufferedInputStream bis = new BufferedInputStream(fis);
+
+                            // HERE IT IS, THE ONLY READY REQUEST WE NEED
+                            bis.read(bytes);
+                            bis.close();
+
+                            // NOW WE NEED TO LOAD THE DATA FROM THE BYTE ARRAY
+                            DataInputStream dis = new DataInputStream(bais);
+
+                            // NOTE THAT WE NEED TO LOAD THE DATA IN THE SAME
+                            // ORDER AND FORMAT AS WE SAVED IT
+                            // FIRST READ THE GRID DIMENSIONS
+                            int initGridColumns = dis.readInt();
+                            int initGridRows = dis.readInt();
+                            int[][] newGrid = new int[initGridColumns][initGridRows];
+
+                            // AND NOW ALL THE CELL VALUES
+                            for (int i = 0; i < initGridColumns; i++) {
+                                for (int j = 0; j < initGridRows; j++) {
+                                    newGrid[i][j] = dis.readInt();
+                                }
+                            }
+                            grid = newGrid;
+                            gridColumns = initGridColumns;
+                            gridRows = initGridRows;
+                            gridRenderer.repaint();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    gamePanel.setCenter(gridRenderer);
+                    gridRenderer.repaint();
                 }
             });
             // TODO
@@ -243,17 +325,17 @@ public class SokobanUI extends Pane {
         // GET THE UPDATED TITLE
         PropertiesManager props = PropertiesManager.getPropertiesManager();
         String title = props.getProperty(SokobanPropertyType.GAME_TITLE_TEXT);
-        primaryStage.setTitle(title);
 
         // THEN ADD ALL THE STUFF WE MIGHT NOW USE
         initNorthToolbar();
 
         // OUR WORKSPACE WILL STORE EITHER THE GAME, STATS,
         // OR HELP UI AT ANY ONE TIME
-        //initWorkspace();
-        //initGameScreen();
-        //initStatsPane();
-        //initHelpPane();
+        initWorkspace();
+        initStatsPane();
+        gridRenderer = new GridRenderer();
+        gridRenderer.setWidth(paneWidth);
+        gridRenderer.setHeight(580);
         // WE'LL START OUT WITH THE GAME SCREEN
         changeWorkspace(SokobanUIState.PLAY_GAME_STATE);
 
@@ -266,6 +348,10 @@ public class SokobanUI extends Pane {
         statsPane.setContentType("text/html");
         statsPane.setPreferredSize(new Dimension(800, 600));
 
+        SwingNode swingNode = new SwingNode();
+        swingNode.setContent(statsPane);
+        statsScrollPane = new ScrollPane();
+        statsScrollPane.setContent(swingNode);
     }
 
     /**
@@ -307,6 +393,8 @@ public class SokobanUI extends Pane {
             }
 
         });
+        //Timer
+
         // MAKE AND INIT THE STATS BUTTON
         statsButton = initToolbarButton(northToolbar,
                 SokobanPropertyType.STATS_IMG_NAME);
@@ -405,7 +493,11 @@ public class SokobanUI extends Pane {
                 mainPane.setCenter(splashScreenPane);
                 break;
             case VIEW_STATS_STATE:
-                mainPane.setCenter(statsScrollPane);
+                workspace.getChildren().clear();
+                workspace.getChildren().add(statsScrollPane);
+            case PLAY_GAME_STATE:
+                workspace.getChildren().clear();
+                workspace.getChildren().add(gamePanel);
         }
 
     }
@@ -419,12 +511,15 @@ public class SokobanUI extends Pane {
         // PIXEL DIMENSIONS OF EACH CELL
         int cellWidth;
         int cellHeight;
+        int gridColumns;
+        int gridRows;
 
         // images
         Image wallImage = new Image("file:images/wall.png");
         Image boxImage = new Image("file:images/box.png");
         Image placeImage = new Image("file:images/place.png");
         Image sokobanImage = new Image("file:images/Sokoban.png");
+        int[][] grid;
 
         /**
          * Default constructor.
@@ -432,10 +527,134 @@ public class SokobanUI extends Pane {
         public GridRenderer() {
             this.setWidth(500);
             this.setHeight(500);
+            this.grid = grid;
+        }
+
+        public void repaint() {
+            gc = this.getGraphicsContext2D();
+            gc.clearRect(0, 0, this.getWidth(), this.getHeight());
+
+            // CALCULATE THE GRID CELL DIMENSIONS
+            double w = this.getWidth() / gridColumns;
+            System.out.println(gridColumns);
+            
+            double h = this.getHeight() / gridRows;
+
+            gc = this.getGraphicsContext2D();
+
+            // NOW RENDER EACH CELL
+            int x = 0, y = 0;
+            for (int i = 0; i < gridColumns; i++) {
+                y = 0;
+                for (int j = 0; j < gridRows; j++) {
+                    // DRAW THE CELL
+                    gc.setFill(Color.LIGHTBLUE);
+                    gc.strokeRoundRect(x, y, w, h, 10, 10);
+
+                    switch (grid[i][j]) {
+                        case 0:
+                            gc.strokeRoundRect(x, y, w, h, 10, 10);
+                            break;
+                        case 1:
+                            gc.drawImage(wallImage, x, y, w, h);
+                            break;
+                        case 2:
+                            gc.drawImage(boxImage, x, y, w, h);
+                            break;
+                        case 3:
+                            gc.drawImage(placeImage, x, y, w, h);
+                            break;
+                        case 4:
+                            gc.drawImage(sokobanImage, x, y, w, h);
+                            break;
+                    }
+
+                    // THEN RENDER THE TEXT
+                    String numToDraw = "" + grid[i][j];
+                    double xInc = (w / 2) - (10 / 2);
+                    double yInc = (h / 2) + (10 / 4);
+                    x += xInc;
+                    y += yInc;
+                    gc.setFill(Color.RED);
+                    gc.fillText(numToDraw, x, y);
+                    x -= xInc;
+                    y -= yInc;
+
+                    // ON TO THE NEXT ROW
+                    y += h;
+                }
+                // ON TO THE NEXT COLUMN
+                x += w;
+            }
         }
 
     }
-    Timer timer = new Timer();
-    
 
+    class TimeApplication extends Application {
+
+        private int sec = 0;
+        private int min = 0;
+        private int hr = 0;
+        private boolean running;
+
+        @Override
+        public void start(Stage primaryStage) throws Exception {
+
+        }
+
+        private void startTimer() {
+            if (running == false) {
+                running = true;
+                java.util.Timer timer = new java.util.Timer();
+                TimerTask timerTask = new TimerTask() {
+                    @Override
+                    public void run() {
+                        System.out.println("working" + hr + " " + min + " " + sec);
+                        sec++;
+                        Platform.runLater(new Runnable() {
+                            public void run() {
+                                if (sec == 60) {
+                                    sec = 0;
+                                    min++;
+                                }
+                                if (min == 60) {
+                                    min = 0;
+                                    hr++;
+                                }
+                                String seconds = Integer.toString(sec);
+                                String minutes = Integer.toString(min);
+                                String hours = Integer.toString(hr);
+
+                                if (sec <= 9) {
+                                    seconds = "0" + Integer.toString(sec);
+                                }
+                                if (min <= 9) {
+                                    minutes = "0" + Integer.toString(min);
+                                }
+                                if (hr <= 9) {
+                                    hours = "0" + Integer.toString(hr);
+                                }
+                                //time.setText(hours + ":" + minutes + ":" + seconds);
+                            }
+                        });
+
+                    }
+
+                };
+                timer.schedule(timerTask, 50, 50);
+            }
+        }
+
+    }
+
+    public void initFileControls() {
+        // INIT THE FILE CHOOSER CONTROL
+        fileChooser = new FileChooser();
+
+        fileChooser.setTitle("Open Resource File");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Sokoban Files", "*.sok"));
+
+        //File selectedFile = fileChooser.showOpenDialog(primaryStage);
+    }
 }

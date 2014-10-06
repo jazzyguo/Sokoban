@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    The properties in this file are loaded when the HangMan game application
+    first loads.
+-->
+<properties>
+    <property_list>    
+        <property name="SPLASH_SCREEN_TITLE_TEXT"   value="Select a Level"></property>
+        <property name="WINDOW_WIDTH"               value="820"></property>
+        <property name="WINDOW_HEIGHT"              value="820"></property>
+        <property name="SPLASH_SCREEN_IMAGE_NAME"   value="SokobanSplashScreen.png"></property>
+        <property name="DATA_PATH"                  value="./data/"></property>
+        <property name="IMG_PATH"                   value="./images/"></property>
+        <property name="LETTERS_FONT_FAMILY"        value="monospaced"></property>
+        <property name="LETTERS_FONT_SIZE"          value="24"></property>
+        <property name="DEFAULT_YES_TEXT"           value="Yes"></property>
+        <property name="DEFAULT_NO_TEXT"            value="No"></property>
+        <property name="DEFAULT_EXIT_TEXT"          value="Are you sure you wish to Quit?"></property>
+        <property name="STATS_IMG_NAME"             value="Stats.png"></property>
+        <property name="GAME_IMG_NAME"             value="back-button.png"></property>
+        <property name="HELP_IMG_NAME"             value="images.png"></property>
+        <property name="EXIT_IMG_NAME"             value="Exit.jpg"></property>
+
+
+    </property_list>
+    <property_options_list>
+        <property_options name="LEVEL_OPTIONS">
+            <option>Level 1</option>
+            <option>Level 2</option>
+            <option>Level 3</option>
+            <option>Level 4</option>
+            <option>Level 5</option>
+            <option>Level 6</option>
+            <option>Level 7</option>
+        </property_options>
+        <property_options name="LEVEL_IMAGE_NAMES">
+            <option>level_1.png</option>
+            <option>level_2.png</option>
+            <option>level_3.png</option>
+            <option>level_4.png</option>
+            <option>level_5.png</option>
+            <option>level_6.png</option>
+            <option>level_7.png</option>
+        </property_options>
+        <property_options name="LEVEL_FILES">
+            <option>level1.sok</option>
+            <option>level2.sok</option>
+            <option>level3.sok</option>
+            <option>level4.sok</option>
+            <option>level5.sok</option>
+            <option>level6.sok</option>
+            <option>level7.sok</option>
+        </property_options>
+    </property_options_list>
+</properties>

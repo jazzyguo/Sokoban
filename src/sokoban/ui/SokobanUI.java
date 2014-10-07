@@ -24,9 +24,16 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import static java.lang.System.gc;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.animation.AnimationTimer;
 import javafx.animation.Timeline;
 import javafx.application.Application;
@@ -133,7 +140,9 @@ public class SokobanUI extends Pane {
     private int gridColumns;
     private int gridRows;
     private int grid[][];
+    private final int INIT_GRID_DIM = 10;
     private FileChooser fileChooser;
+    private String currentLevel;
 
     // THIS CLASS WILL HANDLE ALL ACTION EVENTS FOR THIS PROGRAM
     private SokobanEventHandler eventHandler;
@@ -170,6 +179,9 @@ public class SokobanUI extends Pane {
     public SokobanErrorHandler getErrorHandler() {
         return errorHandler;
     }
+    public SokobanEventHandler getEventHandler(){
+        return eventHandler;
+    }
 
     public JEditorPane getHelpPane() {
         return helpPane;
@@ -186,9 +198,29 @@ public class SokobanUI extends Pane {
     public int[][] getGrid() {
         return grid;
     }
+    public void setGrid(int[][] grid){
+        this.grid = grid;
+    }
 
     public GridRenderer getGridRenderer() {
         return gridRenderer;
+    }
+
+    /**
+     * Initializes the app data.
+     */
+    public void initData() {
+        // START OUT OUR GRID WITH DEFAULT DIMENSIONS
+        gridColumns = INIT_GRID_DIM;
+        gridRows = INIT_GRID_DIM;
+
+        // NOW MAKE THE INITIALLY EMPTY GRID
+        grid = new int[gridColumns][gridRows];
+        for (int i = 0; i < gridColumns; i++) {
+            for (int j = 0; j < gridRows; j++) {
+                grid[i][j] = 0;
+            }
+        }
     }
 
     public void initMainPane() {
@@ -229,8 +261,8 @@ public class SokobanUI extends Pane {
                 .getPropertyOptionsList(SokobanPropertyType.LEVEL_OPTIONS);
         ArrayList<String> levelImages = props
                 .getPropertyOptionsList(SokobanPropertyType.LEVEL_IMAGE_NAMES);
-        //ArrayList<String> levelFiles = props
-        //        .getPropertyOptionsList(SokobanPropertyType.LEVEL_FILES);
+        ArrayList<String> levelFiles = props
+                .getPropertyOptionsList(SokobanPropertyType.LEVEL_FILES);
 
         levelSelectionPane = new FlowPane();
         levelSelectionPane.setAlignment(Pos.BOTTOM_CENTER);
@@ -258,7 +290,11 @@ public class SokobanUI extends Pane {
                     // TODO
                     eventHandler.respondToSelectLevelRequest(level);
                     //Open Level
-                    File fileToOpen = null;
+                    String fileName = "level_" + levelButton.getText().charAt(levelButton.getText().length() - 1) + ".sok";
+                    currentLevel = levelButton.getText();
+                    Path path = Paths.get(fileName);
+                    System.out.println(path.toAbsolutePath());
+                    File fileToOpen = path.toFile();
                     try {
                         if (fileToOpen != null) {
                             // LET'S USE A FAST LOADING TECHNIQUE. WE'LL LOAD ALL OF THE
@@ -292,14 +328,23 @@ public class SokobanUI extends Pane {
                             grid = newGrid;
                             gridColumns = initGridColumns;
                             gridRows = initGridRows;
+                            System.out.println(gridColumns + " " + gridRows);
                             gridRenderer.repaint();
+                            
+                            mainPane.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+                                @Override
+                                public void handle(KeyEvent t) {
+                                    eventHandler.keyPressed(t);
+                                    gamePanel.requestFocus();
+                                }
+                            });
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-
                     gamePanel.setCenter(gridRenderer);
-                    gridRenderer.repaint();
+                    primaryStage.setTitle(currentLevel);
                 }
             });
             // TODO
@@ -333,8 +378,9 @@ public class SokobanUI extends Pane {
         // OR HELP UI AT ANY ONE TIME
         initWorkspace();
         initStatsPane();
+        initData();
         gridRenderer = new GridRenderer();
-        gridRenderer.setWidth(paneWidth);
+        gridRenderer.setWidth(680);
         gridRenderer.setHeight(580);
         // WE'LL START OUT WITH THE GAME SCREEN
         changeWorkspace(SokobanUIState.PLAY_GAME_STATE);
@@ -388,8 +434,7 @@ public class SokobanUI extends Pane {
             @Override
             public void handle(ActionEvent event) {
                 // TODO Auto-generated method stub
-                eventHandler
-                        .respondToSwitchScreenRequest(SokobanUIState.VIEW_HELP_STATE);
+                eventHandler.undo();
             }
 
         });
@@ -405,8 +450,7 @@ public class SokobanUI extends Pane {
             @Override
             public void handle(ActionEvent event) {
                 // TODO Auto-generated method stub
-                eventHandler
-                        .respondToSwitchScreenRequest(SokobanUIState.VIEW_STATS_STATE);
+                eventHandler.respondToSwitchScreenRequest(SokobanUIState.VIEW_STATS_STATE);
             }
 
         });
@@ -511,15 +555,12 @@ public class SokobanUI extends Pane {
         // PIXEL DIMENSIONS OF EACH CELL
         int cellWidth;
         int cellHeight;
-        int gridColumns;
-        int gridRows;
 
         // images
         Image wallImage = new Image("file:images/wall.png");
         Image boxImage = new Image("file:images/box.png");
         Image placeImage = new Image("file:images/place.png");
         Image sokobanImage = new Image("file:images/Sokoban.png");
-        int[][] grid;
 
         /**
          * Default constructor.
@@ -527,7 +568,6 @@ public class SokobanUI extends Pane {
         public GridRenderer() {
             this.setWidth(500);
             this.setHeight(500);
-            this.grid = grid;
         }
 
         public void repaint() {
@@ -536,8 +576,6 @@ public class SokobanUI extends Pane {
 
             // CALCULATE THE GRID CELL DIMENSIONS
             double w = this.getWidth() / gridColumns;
-            System.out.println(gridColumns);
-            
             double h = this.getHeight() / gridRows;
 
             gc = this.getGraphicsContext2D();
@@ -570,16 +608,6 @@ public class SokobanUI extends Pane {
                     }
 
                     // THEN RENDER THE TEXT
-                    String numToDraw = "" + grid[i][j];
-                    double xInc = (w / 2) - (10 / 2);
-                    double yInc = (h / 2) + (10 / 4);
-                    x += xInc;
-                    y += yInc;
-                    gc.setFill(Color.RED);
-                    gc.fillText(numToDraw, x, y);
-                    x -= xInc;
-                    y -= yInc;
-
                     // ON TO THE NEXT ROW
                     y += h;
                 }

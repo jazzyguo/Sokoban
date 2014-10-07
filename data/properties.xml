@@ -43,13 +43,13 @@
             <option>level_7.png</option>
         </property_options>
         <property_options name="LEVEL_FILES">
-            <option>level1.sok</option>
-            <option>level2.sok</option>
-            <option>level3.sok</option>
-            <option>level4.sok</option>
-            <option>level5.sok</option>
-            <option>level6.sok</option>
-            <option>level7.sok</option>
+            <option>level_1.sok</option>
+            <option>level_2.sok</option>
+            <option>level_3.sok</option>
+            <option>level_4.sok</option>
+            <option>level_5.sok</option>
+            <option>level_6.sok</option>
+            <option>level_7.sok</option>
         </property_options>
     </property_options_list>
 </properties>

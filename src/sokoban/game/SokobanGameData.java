@@ -3,6 +3,8 @@ package sokoban.game;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
+import sokoban.ui.SokobanEventHandler;
+import sokoban.ui.SokobanUI;
 
 /**
  * SokobanGameData stores the data necessary for a single Sokoban game. Note
@@ -15,6 +17,7 @@ public class SokobanGameData {
     // TIME IT TAKES TO PLAY THIS GAME
     GregorianCalendar startTime;
     GregorianCalendar endTime;
+   
 
     // THESE ARE USED FOR FORMATTING THE TIME OF GAME
     final long MILLIS_IN_A_SECOND = 1000;
@@ -92,10 +95,11 @@ public class SokobanGameData {
      */
     public boolean isWon() {
         // TODO
+       
         return false;
     }
 
-        /**
+    /**
      * Check if the game was lost.
      */
     public boolean isLost() {

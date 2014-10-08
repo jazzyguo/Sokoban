@@ -56,6 +56,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
@@ -179,7 +180,8 @@ public class SokobanUI extends Pane {
     public SokobanErrorHandler getErrorHandler() {
         return errorHandler;
     }
-    public SokobanEventHandler getEventHandler(){
+
+    public SokobanEventHandler getEventHandler() {
         return eventHandler;
     }
 
@@ -198,7 +200,8 @@ public class SokobanUI extends Pane {
     public int[][] getGrid() {
         return grid;
     }
-    public void setGrid(int[][] grid){
+
+    public void setGrid(int[][] grid) {
         this.grid = grid;
     }
 
@@ -330,12 +333,28 @@ public class SokobanUI extends Pane {
                             gridRows = initGridRows;
                             System.out.println(gridColumns + " " + gridRows);
                             gridRenderer.repaint();
-                            
+
                             mainPane.setOnKeyPressed(new EventHandler<KeyEvent>() {
 
                                 @Override
                                 public void handle(KeyEvent t) {
                                     eventHandler.keyPressed(t);
+                                    gamePanel.requestFocus();
+                                }
+                            });
+                            mainPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+                                @Override
+                                public void handle(MouseEvent event) {
+                                    eventHandler.mouseClicked(event);
+                                    gamePanel.requestFocus();
+                                }
+                            });
+                            mainPane.setOnMouseDragged(new EventHandler<MouseEvent>() {
+
+                                @Override
+                                public void handle(MouseEvent event) {
+                                    eventHandler.mouseDragged(event);
                                     gamePanel.requestFocus();
                                 }
                             });
@@ -534,6 +553,7 @@ public class SokobanUI extends Pane {
             case SPLASH_SCREEN_STATE:
                 mainPane.getChildren().clear();
                 primaryStage.setTitle("Select a Level");
+                //Open Level   
                 mainPane.setCenter(splashScreenPane);
                 break;
             case VIEW_STATS_STATE:

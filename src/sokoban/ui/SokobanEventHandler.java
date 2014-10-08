@@ -21,6 +21,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Stack;
 import javafx.scene.input.KeyCode;
+import static javafx.scene.input.KeyCode.DOWN;
+import static javafx.scene.input.KeyCode.LEFT;
+import static javafx.scene.input.KeyCode.RIGHT;
+import static javafx.scene.input.KeyCode.UP;
+import javafx.scene.input.MouseEvent;
 import properties_manager.PropertiesManager;
 import xml_utilities.InvalidXMLFileFormatException;
 import sokoban.file.SokobanFileLoader;
@@ -32,7 +37,7 @@ public class SokobanEventHandler {
     Stack<int[][]> gridHistory = new Stack<int[][]>();
     public ArrayList<Coordinates> dots = new ArrayList<Coordinates>();
     public ArrayList<Coordinates> blocks = new ArrayList<Coordinates>();
-
+    private String currentLevel;
     private SokobanUI ui;
 
     /**
@@ -131,13 +136,248 @@ public class SokobanEventHandler {
 
     public void respondToSelectLevelRequest(String level) {
         SokobanGameStateManager gsm = ui.getGSM();
+        currentLevel = level;
         System.out.println(level);
         ui.initSokobanUI();
         // WE'LL START THE GAME TOO
         gridHistory.clear();
         dots.clear();
+        blocks.clear();
         gsm.startNewGame();
         //Open Level      
+    }
+
+    void mouseClicked(KeyCode keyCode) {
+        int[][] grid = ui.getGrid();
+        switch (keyCode) {
+            case UP:
+                // handle up 
+                if (grid[characterPos.getX()][characterPos.getY() - 1] == 0
+                        || grid[characterPos.getX()][characterPos.getY() - 1] == 3) {
+                    int[][] previousStep = new int[grid.length][];
+                    for (int x = 0; x < grid.length; x++) {
+                        previousStep[x] = new int[grid[x].length];
+                        for (int j = 0; j < grid[x].length; j++) {
+                            previousStep[x][j] = grid[x][j];
+                        }
+                    }
+                    gridHistory.push(previousStep);
+                    grid[characterPos.getX()][characterPos.getY()] = 0;
+                    grid[characterPos.getX()][characterPos.getY() - 1] = 4;
+                    for (int i = 0; i < dots.size(); i++) {
+                        if (grid[dots.get(i).getX()][dots.get(i).getY()] == 0) {
+                            grid[dots.get(i).getX()][dots.get(i).getY()] = 3;
+                        }
+                    }
+                    ui.getGridRenderer().repaint();
+                    if (win(grid) == true) {
+                        System.out.println("YOU WIN!");
+                    }
+                    if (lose(grid) == true) {
+                        System.out.println("YOU LOSE!");
+                    }
+                    break;
+                }
+                if (grid[characterPos.getX()][characterPos.getY() - 1] == 2
+                        && (grid[characterPos.getX()][characterPos.getY() - 2] == 0)
+                        || grid[characterPos.getX()][characterPos.getY() - 2] == 3) {
+                    int[][] previousStep = new int[grid.length][];
+                    for (int x = 0; x < grid.length; x++) {
+                        previousStep[x] = new int[grid[x].length];
+                        for (int j = 0; j < grid[x].length; j++) {
+                            previousStep[x][j] = grid[x][j];
+                        }
+                    }
+                    gridHistory.push(previousStep);
+                    grid[characterPos.getX()][characterPos.getY()] = 0;
+                    grid[characterPos.getX()][characterPos.getY() - 1] = 4;
+                    grid[characterPos.getX()][characterPos.getY() - 2] = 2;
+                    //retain dots
+                    for (int i = 0; i < dots.size(); i++) {
+                        if (grid[dots.get(i).getX()][dots.get(i).getY()] == 0) {
+                            grid[dots.get(i).getX()][dots.get(i).getY()] = 3;
+                        }
+                    }
+                    ui.getGridRenderer().repaint();
+                    if (win(grid) == true) {
+                        System.out.println("YOU WIN!");
+                    }
+                    if (lose(grid) == true) {
+                        System.out.println("YOU LOSE!");
+                    }
+                    break;
+                } else {
+                    break;
+                }
+            case DOWN:
+                if (grid[characterPos.getX()][characterPos.getY() + 1] == 0
+                        || grid[characterPos.getX()][characterPos.getY() + 1] == 3) {
+                    int[][] previousStep = new int[grid.length][];
+                    for (int x = 0; x < grid.length; x++) {
+                        previousStep[x] = new int[grid[x].length];
+                        for (int j = 0; j < grid[x].length; j++) {
+                            previousStep[x][j] = grid[x][j];
+                        }
+                    }
+                    gridHistory.push(previousStep);
+                    grid[characterPos.getX()][characterPos.getY()] = 0;
+                    grid[characterPos.getX()][characterPos.getY() + 1] = 4;
+                    for (int i = 0; i < dots.size(); i++) {
+                        if (grid[dots.get(i).getX()][dots.get(i).getY()] == 0) {
+                            grid[dots.get(i).getX()][dots.get(i).getY()] = 3;
+                        }
+                    }
+                    ui.getGridRenderer().repaint();
+                    if (win(grid) == true) {
+                        System.out.println("YOU WIN!");
+                    }
+                    if (lose(grid) == true) {
+                        System.out.println("YOU LOSE!");
+                    }
+                    break;
+                }
+                if (grid[characterPos.getX()][characterPos.getY() + 1] == 2
+                        && (grid[characterPos.getX()][characterPos.getY() + 2] == 0)
+                        || grid[characterPos.getX()][characterPos.getY() + 2] == 3) {
+                    int[][] previousStep = new int[grid.length][];
+                    for (int x = 0; x < grid.length; x++) {
+                        previousStep[x] = new int[grid[x].length];
+                        for (int j = 0; j < grid[x].length; j++) {
+                            previousStep[x][j] = grid[x][j];
+                        }
+                    }
+                    gridHistory.push(previousStep);
+                    grid[characterPos.getX()][characterPos.getY()] = 0;
+                    grid[characterPos.getX()][characterPos.getY() + 1] = 4;
+                    grid[characterPos.getX()][characterPos.getY() + 2] = 2;
+                    for (int i = 0; i < dots.size(); i++) {
+                        if (grid[dots.get(i).getX()][dots.get(i).getY()] == 0) {
+                            grid[dots.get(i).getX()][dots.get(i).getY()] = 3;
+                        }
+                    }
+                    ui.getGridRenderer().repaint();
+                    if (win(grid) == true) {
+                        System.out.println("YOU WIN!");
+                    }
+                    if (lose(grid) == true) {
+                        System.out.println("YOU LOSE!");
+                    }
+                    break;
+                } else {
+                    break;
+                }
+            case LEFT:
+                if (grid[characterPos.getX() - 1][characterPos.getY()] == 0
+                        || grid[characterPos.getX() - 1][characterPos.getY()] == 3) {
+                    int[][] previousStep = new int[grid.length][];
+                    for (int x = 0; x < grid.length; x++) {
+                        previousStep[x] = new int[grid[x].length];
+                        for (int j = 0; j < grid[x].length; j++) {
+                            previousStep[x][j] = grid[x][j];
+                        }
+                    }
+                    gridHistory.push(previousStep);
+                    grid[characterPos.getX()][characterPos.getY()] = 0;
+                    grid[characterPos.getX() - 1][characterPos.getY()] = 4;
+                    for (int i = 0; i < dots.size(); i++) {
+                        if (grid[dots.get(i).getX()][dots.get(i).getY()] == 0) {
+                            grid[dots.get(i).getX()][dots.get(i).getY()] = 3;
+                        }
+                    }
+                    ui.getGridRenderer().repaint();
+                    if (win(grid) == true) {
+                        System.out.println("YOU WIN!");
+                    }
+                    if (lose(grid) == true) {
+                        System.out.println("YOU LOSE!");
+                    }
+                    break;
+                }
+                if (grid[characterPos.getX() - 1][characterPos.getY()] == 2
+                        && (grid[characterPos.getX() - 2][characterPos.getY()] == 0)
+                        || grid[characterPos.getX() - 2][characterPos.getY()] == 3) {
+                    int[][] previousStep = new int[grid.length][];
+                    for (int x = 0; x < grid.length; x++) {
+                        previousStep[x] = new int[grid[x].length];
+                        for (int j = 0; j < grid[x].length; j++) {
+                            previousStep[x][j] = grid[x][j];
+                        }
+                    }
+                    gridHistory.push(previousStep);
+                    grid[characterPos.getX()][characterPos.getY()] = 0;
+                    grid[characterPos.getX() - 1][characterPos.getY()] = 4;
+                    grid[characterPos.getX() - 2][characterPos.getY()] = 2;
+                    for (int i = 0; i < dots.size(); i++) {
+                        if (grid[dots.get(i).getX()][dots.get(i).getY()] == 0) {
+                            grid[dots.get(i).getX()][dots.get(i).getY()] = 3;
+                        }
+                    }
+                    ui.getGridRenderer().repaint();
+                    if (win(grid) == true) {
+                        System.out.println("YOU WIN!");
+                    }
+                    if (lose(grid) == true) {
+                        System.out.println("YOU LOSE!");
+                    }
+                    break;
+                } else {
+                    break;
+                }
+            case RIGHT:
+                if (grid[characterPos.getX() + 1][characterPos.getY()] == 0
+                        || grid[characterPos.getX() + 1][characterPos.getY()] == 3) {
+                    int[][] previousStep = new int[grid.length][];
+                    for (int x = 0; x < grid.length; x++) {
+                        previousStep[x] = new int[grid[x].length];
+                        for (int j = 0; j < grid[x].length; j++) {
+                            previousStep[x][j] = grid[x][j];
+                        }
+                    }
+                    gridHistory.push(previousStep);
+                    grid[characterPos.getX()][characterPos.getY()] = 0;
+                    grid[characterPos.getX() + 1][characterPos.getY()] = 4;
+                    for (int i = 0; i < dots.size(); i++) {
+                        if (grid[dots.get(i).getX()][dots.get(i).getY()] == 0) {
+                            grid[dots.get(i).getX()][dots.get(i).getY()] = 3;
+                        }
+                    }
+                    ui.getGridRenderer().repaint();
+                    if (win(grid) == true) {
+                        System.out.println("YOU WIN!");
+                    }
+                    break;
+                }
+                if (grid[characterPos.getX() + 1][characterPos.getY()] == 2
+                        && (grid[characterPos.getX() + 2][characterPos.getY()] == 0)
+                        || grid[characterPos.getX() + 2][characterPos.getY()] == 3) {
+                    int[][] previousStep = new int[grid.length][];
+                    for (int x = 0; x < grid.length; x++) {
+                        previousStep[x] = new int[grid[x].length];
+                        for (int j = 0; j < grid[x].length; j++) {
+                            previousStep[x][j] = grid[x][j];
+                        }
+                    }
+                    gridHistory.push(previousStep);
+                    grid[characterPos.getX()][characterPos.getY()] = 0;
+                    grid[characterPos.getX() + 1][characterPos.getY()] = 4;
+                    grid[characterPos.getX() + 2][characterPos.getY()] = 2;
+                    for (int i = 0; i < dots.size(); i++) {
+                        if (grid[dots.get(i).getX()][dots.get(i).getY()] == 0) {
+                            grid[dots.get(i).getX()][dots.get(i).getY()] = 3;
+                        }
+                    }
+                    ui.getGridRenderer().repaint();
+                    if (win(grid) == true) {
+                        System.out.println("YOU WIN!");
+                    }
+                    if (lose(grid) == true) {
+                        System.out.println("YOU LOSE!");
+                    }
+                    break;
+                } else {
+                    break;
+                }
+        }
     }
 
     void keyPressed(javafx.scene.input.KeyEvent t) {
@@ -159,12 +399,19 @@ public class SokobanEventHandler {
                 }
             }
         }
-        gridHistory.push(ui.getGrid());
         switch (keyCode) {
             case UP:
                 // handle up 
                 if (grid[characterPos.getX()][characterPos.getY() - 1] == 0
                         || grid[characterPos.getX()][characterPos.getY() - 1] == 3) {
+                    int[][] previousStep = new int[grid.length][];
+                    for (int x = 0; x < grid.length; x++) {
+                        previousStep[x] = new int[grid[x].length];
+                        for (int j = 0; j < grid[x].length; j++) {
+                            previousStep[x][j] = grid[x][j];
+                        }
+                    }
+                    gridHistory.push(previousStep);
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX()][characterPos.getY() - 1] = 4;
                     for (int i = 0; i < dots.size(); i++) {
@@ -175,15 +422,27 @@ public class SokobanEventHandler {
                     ui.getGridRenderer().repaint();
                     if (win(grid) == true) {
                         System.out.println("YOU WIN!");
+                    }
+                    if (lose(grid) == true) {
+                        System.out.println("YOU LOSE!");
                     }
                     break;
                 }
                 if (grid[characterPos.getX()][characterPos.getY() - 1] == 2
                         && (grid[characterPos.getX()][characterPos.getY() - 2] == 0)
                         || grid[characterPos.getX()][characterPos.getY() - 2] == 3) {
+                    int[][] previousStep = new int[grid.length][];
+                    for (int x = 0; x < grid.length; x++) {
+                        previousStep[x] = new int[grid[x].length];
+                        for (int j = 0; j < grid[x].length; j++) {
+                            previousStep[x][j] = grid[x][j];
+                        }
+                    }
+                    gridHistory.push(previousStep);
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX()][characterPos.getY() - 1] = 4;
                     grid[characterPos.getX()][characterPos.getY() - 2] = 2;
+                    //retain dots
                     for (int i = 0; i < dots.size(); i++) {
                         if (grid[dots.get(i).getX()][dots.get(i).getY()] == 0) {
                             grid[dots.get(i).getX()][dots.get(i).getY()] = 3;
@@ -192,6 +451,9 @@ public class SokobanEventHandler {
                     ui.getGridRenderer().repaint();
                     if (win(grid) == true) {
                         System.out.println("YOU WIN!");
+                    }
+                    if (lose(grid) == true) {
+                        System.out.println("YOU LOSE!");
                     }
                     break;
                 } else {
@@ -200,6 +462,14 @@ public class SokobanEventHandler {
             case DOWN:
                 if (grid[characterPos.getX()][characterPos.getY() + 1] == 0
                         || grid[characterPos.getX()][characterPos.getY() + 1] == 3) {
+                    int[][] previousStep = new int[grid.length][];
+                    for (int x = 0; x < grid.length; x++) {
+                        previousStep[x] = new int[grid[x].length];
+                        for (int j = 0; j < grid[x].length; j++) {
+                            previousStep[x][j] = grid[x][j];
+                        }
+                    }
+                    gridHistory.push(previousStep);
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX()][characterPos.getY() + 1] = 4;
                     for (int i = 0; i < dots.size(); i++) {
@@ -211,11 +481,22 @@ public class SokobanEventHandler {
                     if (win(grid) == true) {
                         System.out.println("YOU WIN!");
                     }
+                    if (lose(grid) == true) {
+                        System.out.println("YOU LOSE!");
+                    }
                     break;
                 }
                 if (grid[characterPos.getX()][characterPos.getY() + 1] == 2
                         && (grid[characterPos.getX()][characterPos.getY() + 2] == 0)
                         || grid[characterPos.getX()][characterPos.getY() + 2] == 3) {
+                    int[][] previousStep = new int[grid.length][];
+                    for (int x = 0; x < grid.length; x++) {
+                        previousStep[x] = new int[grid[x].length];
+                        for (int j = 0; j < grid[x].length; j++) {
+                            previousStep[x][j] = grid[x][j];
+                        }
+                    }
+                    gridHistory.push(previousStep);
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX()][characterPos.getY() + 1] = 4;
                     grid[characterPos.getX()][characterPos.getY() + 2] = 2;
@@ -228,6 +509,9 @@ public class SokobanEventHandler {
                     if (win(grid) == true) {
                         System.out.println("YOU WIN!");
                     }
+                    if (lose(grid) == true) {
+                        System.out.println("YOU LOSE!");
+                    }
                     break;
                 } else {
                     break;
@@ -235,6 +519,14 @@ public class SokobanEventHandler {
             case LEFT:
                 if (grid[characterPos.getX() - 1][characterPos.getY()] == 0
                         || grid[characterPos.getX() - 1][characterPos.getY()] == 3) {
+                    int[][] previousStep = new int[grid.length][];
+                    for (int x = 0; x < grid.length; x++) {
+                        previousStep[x] = new int[grid[x].length];
+                        for (int j = 0; j < grid[x].length; j++) {
+                            previousStep[x][j] = grid[x][j];
+                        }
+                    }
+                    gridHistory.push(previousStep);
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX() - 1][characterPos.getY()] = 4;
                     for (int i = 0; i < dots.size(); i++) {
@@ -246,11 +538,22 @@ public class SokobanEventHandler {
                     if (win(grid) == true) {
                         System.out.println("YOU WIN!");
                     }
+                    if (lose(grid) == true) {
+                        System.out.println("YOU LOSE!");
+                    }
                     break;
                 }
                 if (grid[characterPos.getX() - 1][characterPos.getY()] == 2
                         && (grid[characterPos.getX() - 2][characterPos.getY()] == 0)
                         || grid[characterPos.getX() - 2][characterPos.getY()] == 3) {
+                    int[][] previousStep = new int[grid.length][];
+                    for (int x = 0; x < grid.length; x++) {
+                        previousStep[x] = new int[grid[x].length];
+                        for (int j = 0; j < grid[x].length; j++) {
+                            previousStep[x][j] = grid[x][j];
+                        }
+                    }
+                    gridHistory.push(previousStep);
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX() - 1][characterPos.getY()] = 4;
                     grid[characterPos.getX() - 2][characterPos.getY()] = 2;
@@ -263,6 +566,9 @@ public class SokobanEventHandler {
                     if (win(grid) == true) {
                         System.out.println("YOU WIN!");
                     }
+                    if (lose(grid) == true) {
+                        System.out.println("YOU LOSE!");
+                    }
                     break;
                 } else {
                     break;
@@ -270,6 +576,14 @@ public class SokobanEventHandler {
             case RIGHT:
                 if (grid[characterPos.getX() + 1][characterPos.getY()] == 0
                         || grid[characterPos.getX() + 1][characterPos.getY()] == 3) {
+                    int[][] previousStep = new int[grid.length][];
+                    for (int x = 0; x < grid.length; x++) {
+                        previousStep[x] = new int[grid[x].length];
+                        for (int j = 0; j < grid[x].length; j++) {
+                            previousStep[x][j] = grid[x][j];
+                        }
+                    }
+                    gridHistory.push(previousStep);
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX() + 1][characterPos.getY()] = 4;
                     for (int i = 0; i < dots.size(); i++) {
@@ -281,11 +595,22 @@ public class SokobanEventHandler {
                     if (win(grid) == true) {
                         System.out.println("YOU WIN!");
                     }
+                    if (lose(grid) == true) {
+                        System.out.println("YOU LOSE!");
+                    }
                     break;
                 }
                 if (grid[characterPos.getX() + 1][characterPos.getY()] == 2
                         && (grid[characterPos.getX() + 2][characterPos.getY()] == 0)
                         || grid[characterPos.getX() + 2][characterPos.getY()] == 3) {
+                    int[][] previousStep = new int[grid.length][];
+                    for (int x = 0; x < grid.length; x++) {
+                        previousStep[x] = new int[grid[x].length];
+                        for (int j = 0; j < grid[x].length; j++) {
+                            previousStep[x][j] = grid[x][j];
+                        }
+                    }
+                    gridHistory.push(previousStep);
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX() + 1][characterPos.getY()] = 4;
                     grid[characterPos.getX() + 2][characterPos.getY()] = 2;
@@ -297,6 +622,9 @@ public class SokobanEventHandler {
                     ui.getGridRenderer().repaint();
                     if (win(grid) == true) {
                         System.out.println("YOU WIN!");
+                    }
+                    if (lose(grid) == true) {
+                        System.out.println("YOU LOSE!");
                     }
                     break;
                 } else {
@@ -310,9 +638,15 @@ public class SokobanEventHandler {
 
     void undo() {
         if (!gridHistory.isEmpty()) {
-            ui.setGrid(gridHistory.pop());
-            ui.getGridRenderer().repaint();
+            int[][] previousStep = gridHistory.pop();
+            int[][] grid = ui.getGrid();
+            for (int i = 0; i < grid.length; i++) {
+                for (int j = 0; j < grid[i].length; j++) {
+                    grid[i][j] = previousStep[i][j];
+                }
+            }
         }
+        ui.getGridRenderer().repaint();
     }
 
     public boolean win(int[][] grid) {
@@ -320,9 +654,186 @@ public class SokobanEventHandler {
             if (!(grid[dots.get(i).getX()][dots.get(i).getY()] == 2)) {
                 return false;
             }
-        }       
-        
+        }
+        // ENGLIS IS THE DEFAULT
+        PropertiesManager props = PropertiesManager.getPropertiesManager();
+        Stage dialogStage = new Stage();
+        dialogStage.initModality(Modality.WINDOW_MODAL);
+        BorderPane exitPane = new BorderPane();
+        HBox optionPane = new HBox();
+        Button yesButton = new Button();
+        Button restart = new Button();
+        restart.setText("Play Again");
+        yesButton.setText("YOU WIN!");
+        exitPane.setCenter(yesButton);
+        Scene scene = new Scene(exitPane, 250, 100);
+        dialogStage.setScene(scene);
+        dialogStage.show();
+        // WHAT'S THE USER'S DECISION?
+        yesButton.setOnAction(e -> {
+            respondToSwitchScreenRequest(SokobanUI.SokobanUIState.SPLASH_SCREEN_STATE);
+            dialogStage.close();
+        });
+        restart.setOnAction(e -> {
+            respondToSelectLevelRequest(currentLevel);
+            dialogStage.close();
+        }
+        );
+        //makes sure YOU WIN box doesn't reappear 
+        grid = ui.getGrid();
+        for (int i = 0;
+                i < ui.getGridColumns();
+                i++) {
+            for (int j = 0; j < ui.getGridRows(); j++) {
+                grid[i][j] = 0;
+            }
+        }
         return true;
+    }
+
+    void mouseClicked(MouseEvent event) {
+        int[][] grid = ui.getGrid();
+        for (int i = 0; i < ui.getGridColumns(); i++) {
+            for (int j = 0; j < ui.getGridRows(); j++) {
+                if (grid[i][j] == 4) {
+                    characterPos.setX(i);
+                    characterPos.setY(j);
+                }
+                if (grid[i][j] == 3) {
+                    Coordinates dot = new Coordinates(i, j);
+                    dots.add(dot);
+                }
+                if (grid[i][j] == 2) {
+                    Coordinates block = new Coordinates(i, j);
+                    blocks.add(block);
+                }
+            }
+        }
+        int cX = characterPos.getX();
+        int cY = characterPos.getY();
+        Coordinates mouseCoordinates = new Coordinates((int) (event.getX()) / 90, (int) (event.getY() - 40) / 90);
+        String position = "";
+        if (mouseCoordinates.getX() - 1 == characterPos.getX()) {
+            position = "right";
+        }
+        if (mouseCoordinates.getX() + 1 == characterPos.getX()) {
+            position = "left";
+        }
+        if (mouseCoordinates.getY() + 1 == characterPos.getY()) {
+            position = "up";
+        }
+        if (mouseCoordinates.getY() - 1 == characterPos.getY()) {
+            position = "down";
+        }
+        switch (position) {
+            case "right":
+                mouseClicked(RIGHT);
+                break;
+            case "left":
+                mouseClicked(LEFT);
+                break;
+            case "up":
+                mouseClicked(UP);
+                break;
+            case "down":
+                mouseClicked(DOWN);
+                break;
+        }
+
+    }
+
+    void mouseDragged(MouseEvent event) {
+    }
+
+    public void showLose() {
+        // ENGLIS IS THE DEFAULT
+        PropertiesManager props = PropertiesManager.getPropertiesManager();
+        Stage dialogStage = new Stage();
+        dialogStage.initModality(Modality.WINDOW_MODAL);
+        BorderPane exitPane = new BorderPane();
+        HBox optionPane = new HBox();
+        Button yesButton = new Button();
+        Button restart = new Button();
+        restart.setText("Play Again");
+        yesButton.setText("YOU WIN!");
+        exitPane.setCenter(yesButton);
+        Scene scene = new Scene(exitPane, 250, 100);
+        dialogStage.setScene(scene);
+        dialogStage.show();
+        // WHAT'S THE USER'S DECISION?
+        yesButton.setOnAction(e -> {
+            respondToSwitchScreenRequest(SokobanUI.SokobanUIState.SPLASH_SCREEN_STATE);
+            dialogStage.close();
+        });
+        restart.setOnAction(e -> {
+            respondToSelectLevelRequest(currentLevel);
+            dialogStage.close();
+        }
+        );
+        //makes sure YOU WIN box doesn't reappear 
+        int[][] grid = ui.getGrid();
+        for (int i = 0;
+                i < ui.getGridColumns();
+                i++) {
+            for (int j = 0; j < ui.getGridRows(); j++) {
+                grid[i][j] = 0;
+            }
+        }
+    }
+
+    private boolean lose(int[][] grid) {
+        for (int i = 0; i < blocks.size(); i++) {
+            //E + S
+            if ((grid[blocks.get(i).getX() + 1][blocks.get(i).getY()] == 1
+                    || grid[blocks.get(i).getX() + 1][blocks.get(i).getY()] == 1)
+                    && (grid[blocks.get(i).getX()][blocks.get(i).getY() + 1] == 1
+                    || grid[blocks.get(i).getX()][blocks.get(i).getY() + 1] == 1)) {
+                if (!isDot(blocks.get(i))) {
+                    showLose();
+                    return true;
+                }
+            }
+            //W + S
+            if ((grid[blocks.get(i).getX() - 1][blocks.get(i).getY()] == 1
+                    || grid[blocks.get(i).getX() - 1][blocks.get(i).getY()] == 1)
+                    && (grid[blocks.get(i).getX()][blocks.get(i).getY() + 1] == 1
+                    || grid[blocks.get(i).getX()][blocks.get(i).getY() + 1] == 1)) {
+                if (!isDot(blocks.get(i))) {
+                    showLose();
+                    return true;
+                }
+            }
+            //N+W
+            if ((grid[blocks.get(i).getX()][blocks.get(i).getY() - 1] == 1
+                    || grid[blocks.get(i).getX()][blocks.get(i).getY() - 1] == 1)
+                    && (grid[blocks.get(i).getX() - 1][blocks.get(i).getY()] == 1
+                    || grid[blocks.get(i).getX() - 1][blocks.get(i).getY()] == 1)) {
+                if (!isDot(blocks.get(i))) {
+                    showLose();
+                    return true;
+                }
+            }//N+E
+            if ((grid[blocks.get(i).getX()][blocks.get(i).getY() - 1] == 1
+                    || grid[blocks.get(i).getX()][blocks.get(i).getY() - 1] == 1)
+                    && (grid[blocks.get(i).getX() + 1][blocks.get(i).getY()] == 1
+                    || grid[blocks.get(i).getX() + 1][blocks.get(i).getY()] == 1)) {
+                if (!isDot(blocks.get(i))) {
+                    showLose();
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    boolean isDot(Coordinates coord) {
+        for (int i = 0; i < dots.size(); i++) {
+            if (dots.get(i).getX() == coord.getX()
+                    && dots.get(i).getY() == coord.getY()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public class Coordinates {

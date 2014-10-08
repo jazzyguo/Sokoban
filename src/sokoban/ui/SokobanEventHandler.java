@@ -345,6 +345,9 @@ public class SokobanEventHandler {
                     if (win(grid) == true) {
                         System.out.println("YOU WIN!");
                     }
+                    if (lose(grid) == true) {
+                        System.out.println("YOU LOSE!");
+                    }
                     break;
                 }
                 if (grid[characterPos.getX() + 1][characterPos.getY()] == 2
@@ -755,7 +758,7 @@ public class SokobanEventHandler {
         Button yesButton = new Button();
         Button restart = new Button();
         restart.setText("Play Again");
-        yesButton.setText("YOU WIN!");
+        yesButton.setText("YOU LOSE!");
         exitPane.setCenter(yesButton);
         Scene scene = new Scene(exitPane, 250, 100);
         dialogStage.setScene(scene);

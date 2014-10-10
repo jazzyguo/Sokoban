@@ -26,6 +26,8 @@ import static javafx.scene.input.KeyCode.LEFT;
 import static javafx.scene.input.KeyCode.RIGHT;
 import static javafx.scene.input.KeyCode.UP;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import properties_manager.PropertiesManager;
 import xml_utilities.InvalidXMLFileFormatException;
 import sokoban.file.SokobanFileLoader;
@@ -39,6 +41,12 @@ public class SokobanEventHandler {
     public ArrayList<Coordinates> blocks = new ArrayList<Coordinates>();
     private String currentLevel;
     private SokobanUI ui;
+    Media move = new Media(new File("data/move1.mp3").toURI().toString());
+    Media moveBlock = new Media(new File("data/1.mp3").toURI().toString());
+    Media backGroundMusic = new Media(new File("data/bgMusic.mp3").toURI().toString());
+    MediaPlayer moveSound = new MediaPlayer(move);
+    MediaPlayer moveBlockSound = new MediaPlayer(moveBlock);
+    MediaPlayer bGMusic = new MediaPlayer(backGroundMusic);
 
     /**
      * Constructor that simply saves the ui for later.
@@ -162,6 +170,8 @@ public class SokobanEventHandler {
                         }
                     }
                     gridHistory.push(previousStep);
+                    moveSound.stop();
+                    moveSound.play();
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX()][characterPos.getY() - 1] = 4;
                     for (int i = 0; i < dots.size(); i++) {
@@ -189,6 +199,8 @@ public class SokobanEventHandler {
                         }
                     }
                     gridHistory.push(previousStep);
+                    moveBlockSound.stop();
+                    moveBlockSound.play();
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX()][characterPos.getY() - 1] = 4;
                     grid[characterPos.getX()][characterPos.getY() - 2] = 2;
@@ -220,6 +232,8 @@ public class SokobanEventHandler {
                         }
                     }
                     gridHistory.push(previousStep);
+                    moveSound.stop();
+                    moveSound.play();
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX()][characterPos.getY() + 1] = 4;
                     for (int i = 0; i < dots.size(); i++) {
@@ -247,6 +261,8 @@ public class SokobanEventHandler {
                         }
                     }
                     gridHistory.push(previousStep);
+                    moveBlockSound.stop();
+                    moveBlockSound.play();
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX()][characterPos.getY() + 1] = 4;
                     grid[characterPos.getX()][characterPos.getY() + 2] = 2;
@@ -277,6 +293,8 @@ public class SokobanEventHandler {
                         }
                     }
                     gridHistory.push(previousStep);
+                    moveSound.stop();
+                    moveSound.play();
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX() - 1][characterPos.getY()] = 4;
                     for (int i = 0; i < dots.size(); i++) {
@@ -304,6 +322,8 @@ public class SokobanEventHandler {
                         }
                     }
                     gridHistory.push(previousStep);
+                    moveBlockSound.stop();
+                    moveBlockSound.play();
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX() - 1][characterPos.getY()] = 4;
                     grid[characterPos.getX() - 2][characterPos.getY()] = 2;
@@ -334,6 +354,8 @@ public class SokobanEventHandler {
                         }
                     }
                     gridHistory.push(previousStep);
+                    moveSound.stop();
+                    moveSound.play();
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX() + 1][characterPos.getY()] = 4;
                     for (int i = 0; i < dots.size(); i++) {
@@ -361,6 +383,8 @@ public class SokobanEventHandler {
                         }
                     }
                     gridHistory.push(previousStep);
+                    moveBlockSound.stop();
+                    moveBlockSound.play();
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX() + 1][characterPos.getY()] = 4;
                     grid[characterPos.getX() + 2][characterPos.getY()] = 2;
@@ -415,6 +439,8 @@ public class SokobanEventHandler {
                         }
                     }
                     gridHistory.push(previousStep);
+                    moveSound.stop();
+                    moveSound.play();
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX()][characterPos.getY() - 1] = 4;
                     for (int i = 0; i < dots.size(); i++) {
@@ -442,6 +468,8 @@ public class SokobanEventHandler {
                         }
                     }
                     gridHistory.push(previousStep);
+                    moveBlockSound.stop();
+                    moveBlockSound.play();
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX()][characterPos.getY() - 1] = 4;
                     grid[characterPos.getX()][characterPos.getY() - 2] = 2;
@@ -473,6 +501,8 @@ public class SokobanEventHandler {
                         }
                     }
                     gridHistory.push(previousStep);
+                    moveSound.stop();
+                    moveSound.play();
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX()][characterPos.getY() + 1] = 4;
                     for (int i = 0; i < dots.size(); i++) {
@@ -500,6 +530,8 @@ public class SokobanEventHandler {
                         }
                     }
                     gridHistory.push(previousStep);
+                    moveBlockSound.stop();
+                    moveBlockSound.play();
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX()][characterPos.getY() + 1] = 4;
                     grid[characterPos.getX()][characterPos.getY() + 2] = 2;
@@ -530,6 +562,8 @@ public class SokobanEventHandler {
                         }
                     }
                     gridHistory.push(previousStep);
+                    moveSound.stop();
+                    moveSound.play();
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX() - 1][characterPos.getY()] = 4;
                     for (int i = 0; i < dots.size(); i++) {
@@ -557,6 +591,8 @@ public class SokobanEventHandler {
                         }
                     }
                     gridHistory.push(previousStep);
+                    moveBlockSound.stop();
+                    moveBlockSound.play();
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX() - 1][characterPos.getY()] = 4;
                     grid[characterPos.getX() - 2][characterPos.getY()] = 2;
@@ -587,6 +623,8 @@ public class SokobanEventHandler {
                         }
                     }
                     gridHistory.push(previousStep);
+                    moveSound.stop();
+                    moveSound.play();
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX() + 1][characterPos.getY()] = 4;
                     for (int i = 0; i < dots.size(); i++) {
@@ -614,6 +652,8 @@ public class SokobanEventHandler {
                         }
                     }
                     gridHistory.push(previousStep);
+                    moveBlockSound.stop();
+                    moveBlockSound.play();
                     grid[characterPos.getX()][characterPos.getY()] = 0;
                     grid[characterPos.getX() + 1][characterPos.getY()] = 4;
                     grid[characterPos.getX() + 2][characterPos.getY()] = 2;

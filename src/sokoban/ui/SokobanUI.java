@@ -64,6 +64,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -151,6 +153,8 @@ public class SokobanUI extends Pane {
     private SokobanDocumentManager docManager;
 
     SokobanGameStateManager gsm;
+    Media backGroundMusic = new Media(new File("data/bgMusic.mp3").toURI().toString());
+    MediaPlayer bGMusic = new MediaPlayer(backGroundMusic);
 
     public SokobanUI() {
         gsm = new SokobanGameStateManager(this);
@@ -240,7 +244,7 @@ public class SokobanUI extends Pane {
     }
 
     public void initSplashScreen() {
-
+        bGMusic.play();
         // INIT THE SPLASH SCREEN CONTROLS
         PropertiesManager props = PropertiesManager.getPropertiesManager();
         String splashScreenImagePath = props
@@ -291,7 +295,10 @@ public class SokobanUI extends Pane {
                 @Override
                 public void handle(ActionEvent event) {
                     // TODO
+                    bGMusic.stop();
                     eventHandler.respondToSelectLevelRequest(level);
+                    TimeApplication timer = new TimeApplication();
+                    timer.startTimer();
                     //Open Level
                     String fileName = "level_" + levelButton.getText().charAt(levelButton.getText().length() - 1) + ".sok";
                     currentLevel = levelButton.getText();
@@ -412,7 +419,6 @@ public class SokobanUI extends Pane {
         statsPane.setEditable(false);
         statsPane.setContentType("text/html");
         statsPane.setPreferredSize(new Dimension(800, 600));
-
         SwingNode swingNode = new SwingNode();
         swingNode.setContent(statsPane);
         statsScrollPane = new ScrollPane();
@@ -551,19 +557,31 @@ public class SokobanUI extends Pane {
     public void changeWorkspace(SokobanUIState uiScreen) {
         switch (uiScreen) {
             case SPLASH_SCREEN_STATE:
+                bGMusic.play();
                 mainPane.getChildren().clear();
                 primaryStage.setTitle("Select a Level");
                 //Open Level   
                 mainPane.setCenter(splashScreenPane);
                 break;
             case VIEW_STATS_STATE:
+                bGMusic.stop();
                 workspace.getChildren().clear();
-                workspace.getChildren().add(statsScrollPane);
+                if (mainPane.getCenter() == statsScrollPane) {
+                    workspace.getChildren().clear();
+                    workspace.getChildren().add(gamePanel);
+                    mainPane.setCenter(gamePanel);
+                } else {
+                    workspace.getChildren().add(statsScrollPane);
+                    mainPane.setCenter(statsScrollPane);
+                }
+                break;
             case PLAY_GAME_STATE:
+                bGMusic.stop();
                 workspace.getChildren().clear();
                 workspace.getChildren().add(gamePanel);
+                mainPane.setCenter(gamePanel);
+                break;
         }
-
     }
 
     /**
@@ -651,7 +669,7 @@ public class SokobanUI extends Pane {
         }
 
         private void startTimer() {
-            if (running == false) {
+            if (running == true) {
                 running = true;
                 java.util.Timer timer = new java.util.Timer();
                 TimerTask timerTask = new TimerTask() {
